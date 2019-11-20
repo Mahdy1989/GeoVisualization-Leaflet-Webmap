@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/CensusSubdivisions_4.js"></script>
+        <script src="data/Ontario2016Population_5.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 0.15
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:20, minZoom:3
+        }).fitBounds([[37.20157697007352,-108.28445283956634],[56.94911254202818,-55.861184891442456]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>');
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        var layer_StamenWatercolor_0 = L.tileLayer('http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', {
+            opacity: 1.0,
+            attribution: '',
+        });
+        layer_StamenWatercolor_0;
+        var layer_CartoDark_1 = L.tileLayer('http://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            opacity: 1.0,
+            attribution: '',
+        });
+        layer_CartoDark_1;
+        var layer_CartoLight_2 = L.tileLayer('http://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            opacity: 1.0,
+            attribution: '',
+        });
+        layer_CartoLight_2;
+        var layer_GoogleTerrainHybrid_3 = L.tileLayer('http://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            opacity: 1.0,
+            attribution: '',
+        });
+        layer_GoogleTerrainHybrid_3;
+        map.addLayer(layer_GoogleTerrainHybrid_3);
+        function pop_CensusSubdivisions_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CSDUID'] !== null ? Autolinker.link(String(feature.properties['CSDUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>CSDNAME</strong><br />' + (feature.properties['CSDNAME'] !== null ? Autolinker.link(String(feature.properties['CSDNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CSDTYPE'] !== null ? Autolinker.link(String(feature.properties['CSDTYPE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PRUID'] !== null ? Autolinker.link(String(feature.properties['PRUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">PRNAME</th>\
+                        <td>' + (feature.properties['PRNAME'] !== null ? Autolinker.link(String(feature.properties['PRNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CDUID'] !== null ? Autolinker.link(String(feature.properties['CDUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CDNAME'] !== null ? Autolinker.link(String(feature.properties['CDNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CDTYPE'] !== null ? Autolinker.link(String(feature.properties['CDTYPE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CCSUID'] !== null ? Autolinker.link(String(feature.properties['CCSUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CCSNAME'] !== null ? Autolinker.link(String(feature.properties['CCSNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ERUID'] !== null ? Autolinker.link(String(feature.properties['ERUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ERNAME</th>\
+                        <td>' + (feature.properties['ERNAME'] !== null ? Autolinker.link(String(feature.properties['ERNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SACCODE'] !== null ? Autolinker.link(String(feature.properties['SACCODE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SACTYPE'] !== null ? Autolinker.link(String(feature.properties['SACTYPE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CMAUID'] !== null ? Autolinker.link(String(feature.properties['CMAUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">CMAPUID</th>\
+                        <td>' + (feature.properties['CMAPUID'] !== null ? Autolinker.link(String(feature.properties['CMAPUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">CMANAME</th>\
+                        <td>' + (feature.properties['CMANAME'] !== null ? Autolinker.link(String(feature.properties['CMANAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CMATYPE'] !== null ? Autolinker.link(String(feature.properties['CMATYPE'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_CensusSubdivisions_4_0() {
+            return {
+                pane: 'pane_CensusSubdivisions_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(221,217,87,0.0)',
+            }
+        }
+        map.createPane('pane_CensusSubdivisions_4');
+        map.getPane('pane_CensusSubdivisions_4').style.zIndex = 404;
+        map.getPane('pane_CensusSubdivisions_4').style['mix-blend-mode'] = 'normal';
+        var layer_CensusSubdivisions_4 = new L.geoJson(json_CensusSubdivisions_4, {
+            attribution: '',
+            pane: 'pane_CensusSubdivisions_4',
+            onEachFeature: pop_CensusSubdivisions_4,
+            style: style_CensusSubdivisions_4_0,
+        });
+        bounds_group.addLayer(layer_CensusSubdivisions_4);
+        map.addLayer(layer_CensusSubdivisions_4);
+        function pop_Ontario2016Population_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">CSDUID</th>\
+                        <td>' + (feature.properties['CSDUID'] !== null ? Autolinker.link(String(feature.properties['CSDUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>CSDNAME</strong><br />' + (feature.properties['CSDNAME'] !== null ? Autolinker.link(String(feature.properties['CSDNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CSDTYPE'] !== null ? Autolinker.link(String(feature.properties['CSDTYPE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PRUID'] !== null ? Autolinker.link(String(feature.properties['PRUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PRNAME'] !== null ? Autolinker.link(String(feature.properties['PRNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CDUID'] !== null ? Autolinker.link(String(feature.properties['CDUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CDNAME'] !== null ? Autolinker.link(String(feature.properties['CDNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CDTYPE'] !== null ? Autolinker.link(String(feature.properties['CDTYPE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CCSUID'] !== null ? Autolinker.link(String(feature.properties['CCSUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CCSNAME'] !== null ? Autolinker.link(String(feature.properties['CCSNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ERUID'] !== null ? Autolinker.link(String(feature.properties['ERUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ERNAME</th>\
+                        <td>' + (feature.properties['ERNAME'] !== null ? Autolinker.link(String(feature.properties['ERNAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SACCODE'] !== null ? Autolinker.link(String(feature.properties['SACCODE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SACTYPE'] !== null ? Autolinker.link(String(feature.properties['SACTYPE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CMAUID'] !== null ? Autolinker.link(String(feature.properties['CMAUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">CMAPUID</th>\
+                        <td>' + (feature.properties['CMAPUID'] !== null ? Autolinker.link(String(feature.properties['CMAPUID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CMANAME'] !== null ? Autolinker.link(String(feature.properties['CMANAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CMATYPE'] !== null ? Autolinker.link(String(feature.properties['CMATYPE'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['POP2016Den'] !== null ? Autolinker.link(String(feature.properties['POP2016Den'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_GEO_NAME'] !== null ? Autolinker.link(String(feature.properties['Demographics_GEO_NAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_Population, 2016</th>\
+                        <td>' + (feature.properties['Demographics_Population, 2016'] !== null ? Autolinker.link(String(feature.properties['Demographics_Population, 2016'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_Population, 2011</th>\
+                        <td>' + (feature.properties['Demographics_Population, 2011'] !== null ? Autolinker.link(String(feature.properties['Demographics_Population, 2011'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_Population percentage change, 2011 to 2016'] !== null ? Autolinker.link(String(feature.properties['Demographics_Population percentage change, 2011 to 2016'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_Total private dwellings'] !== null ? Autolinker.link(String(feature.properties['Demographics_Total private dwellings'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_Private dwellings occupied by usual residents'] !== null ? Autolinker.link(String(feature.properties['Demographics_Private dwellings occupied by usual residents'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_Population density per square kilometre'] !== null ? Autolinker.link(String(feature.properties['Demographics_Population density per square kilometre'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_Land area in square kilometres'] !== null ? Autolinker.link(String(feature.properties['Demographics_Land area in square kilometres'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_Total - Age groups and average age o the pop'] !== null ? Autolinker.link(String(feature.properties['Demographics_Total - Age groups and average age o the pop'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_0 to 14 years</th>\
+                        <td>' + (feature.properties['Demographics_0 to 14 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_0 to 14 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_0 to 4 years</th>\
+                        <td>' + (feature.properties['Demographics_0 to 4 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_0 to 4 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_5 to 9 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_5 to 9 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_10 to 14 years</th>\
+                        <td>' + (feature.properties['Demographics_10 to 14 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_10 to 14 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_15 to 64 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_15 to 64 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_15 to 19 years</th>\
+                        <td>' + (feature.properties['Demographics_15 to 19 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_15 to 19 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_20 to 24 years</th>\
+                        <td>' + (feature.properties['Demographics_20 to 24 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_20 to 24 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_25 to 29 years</th>\
+                        <td>' + (feature.properties['Demographics_25 to 29 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_25 to 29 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_30 to 34 years</th>\
+                        <td>' + (feature.properties['Demographics_30 to 34 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_30 to 34 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_35 to 39 years</th>\
+                        <td>' + (feature.properties['Demographics_35 to 39 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_35 to 39 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_40 to 44 years</th>\
+                        <td>' + (feature.properties['Demographics_40 to 44 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_40 to 44 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_45 to 49 years</th>\
+                        <td>' + (feature.properties['Demographics_45 to 49 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_45 to 49 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_50 to 54 years</th>\
+                        <td>' + (feature.properties['Demographics_50 to 54 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_50 to 54 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_55 to 59 years</th>\
+                        <td>' + (feature.properties['Demographics_55 to 59 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_55 to 59 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_60 to 64 years</th>\
+                        <td>' + (feature.properties['Demographics_60 to 64 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_60 to 64 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_65 years and over</th>\
+                        <td>' + (feature.properties['Demographics_65 years and over'] !== null ? Autolinker.link(String(feature.properties['Demographics_65 years and over'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_65 to 69 years</th>\
+                        <td>' + (feature.properties['Demographics_65 to 69 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_65 to 69 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_70 to 74 years</th>\
+                        <td>' + (feature.properties['Demographics_70 to 74 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_70 to 74 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_75 to 79 years</th>\
+                        <td>' + (feature.properties['Demographics_75 to 79 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_75 to 79 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_80 to 84 years</th>\
+                        <td>' + (feature.properties['Demographics_80 to 84 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_80 to 84 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Demographics_85 years and over'] !== null ? Autolinker.link(String(feature.properties['Demographics_85 years and over'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_85 to 89 years</th>\
+                        <td>' + (feature.properties['Demographics_85 to 89 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_85 to 89 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_90 to 94 years</th>\
+                        <td>' + (feature.properties['Demographics_90 to 94 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_90 to 94 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_95 to 99 years</th>\
+                        <td>' + (feature.properties['Demographics_95 to 99 years'] !== null ? Autolinker.link(String(feature.properties['Demographics_95 to 99 years'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Demographics_100 years and over</th>\
+                        <td>' + (feature.properties['Demographics_100 years and over'] !== null ? Autolinker.link(String(feature.properties['Demographics_100 years and over'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Ontario2016Population_5_0(feature) {
+            if (feature.properties['Demographics_Population density per square kilometre'] >= 0.000000 && feature.properties['Demographics_Population density per square kilometre'] <= 3.580000 ) {
+                return {
+                pane: 'pane_Ontario2016Population_5',
+                opacity: 0.5,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 0.401,
+                fillColor: 'rgba(255,214,4,1.0)',
+            }
+            }
+            if (feature.properties['Demographics_Population density per square kilometre'] >= 3.580000 && feature.properties['Demographics_Population density per square kilometre'] <= 10.160000 ) {
+                return {
+                pane: 'pane_Ontario2016Population_5',
+                opacity: 0.5,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 0.401,
+                fillColor: 'rgba(255,161,3,1.0)',
+            }
+            }
+            if (feature.properties['Demographics_Population density per square kilometre'] >= 10.160000 && feature.properties['Demographics_Population density per square kilometre'] <= 24.500000 ) {
+                return {
+                pane: 'pane_Ontario2016Population_5',
+                opacity: 0.5,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 0.401,
+                fillColor: 'rgba(255,107,2,1.0)',
+            }
+            }
+            if (feature.properties['Demographics_Population density per square kilometre'] >= 24.500000 && feature.properties['Demographics_Population density per square kilometre'] <= 105.820000 ) {
+                return {
+                pane: 'pane_Ontario2016Population_5',
+                opacity: 0.5,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 0.401,
+                fillColor: 'rgba(255,54,1,1.0)',
+            }
+            }
+            if (feature.properties['Demographics_Population density per square kilometre'] >= 105.820000 && feature.properties['Demographics_Population density per square kilometre'] <= 4334.400000 ) {
+                return {
+                pane: 'pane_Ontario2016Population_5',
+                opacity: 0.5,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 0.401,
+                fillColor: 'rgba(255,1,1,1.0)',
+            }
+            }
+        }
+        map.createPane('pane_Ontario2016Population_5');
+        map.getPane('pane_Ontario2016Population_5').style.zIndex = 405;
+        map.getPane('pane_Ontario2016Population_5').style['mix-blend-mode'] = 'normal';
+        var layer_Ontario2016Population_5 = new L.geoJson(json_Ontario2016Population_5, {
+            attribution: '',
+            pane: 'pane_Ontario2016Population_5',
+            onEachFeature: pop_Ontario2016Population_5,
+            style: style_Ontario2016Population_5_0,
+        });
+        bounds_group.addLayer(layer_Ontario2016Population_5);
+        map.addLayer(layer_Ontario2016Population_5);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'Ontario 2016 Population<br /><table><tr><td style="text-align: center;"><img src="legend/Ontario2016Population_5_040.png" /></td><td>0 - 4</td></tr><tr><td style="text-align: center;"><img src="legend/Ontario2016Population_5_4101.png" /></td><td>4 - 10</td></tr><tr><td style="text-align: center;"><img src="legend/Ontario2016Population_5_10252.png" /></td><td>10 - 25</td></tr><tr><td style="text-align: center;"><img src="legend/Ontario2016Population_5_251063.png" /></td><td>25 - 106</td></tr><tr><td style="text-align: center;"><img src="legend/Ontario2016Population_5_10643344.png" /></td><td>106 - 4334</td></tr></table>': layer_Ontario2016Population_5,'<img src="legend/CensusSubdivisions_4.png" /> Census Subdivisions': layer_CensusSubdivisions_4,"Google Terrain Hybrid": layer_GoogleTerrainHybrid_3,"Carto Light": layer_CartoLight_2,"Carto Dark": layer_CartoDark_1,"Stamen Watercolor": layer_StamenWatercolor_0,}).addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_CensusSubdivisions_4,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'CSDNAME'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        </script>
+    </body>
+</html>
